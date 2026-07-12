@@ -1,0 +1,32 @@
+from fastapi import APIRouter, Depends, Query
+
+from app.deps import get_cars_service
+from app.schemas.filters import ResponseParametersSchema, ParametersSchema, ResponseCarsType
+from app.services.cars import CarsService
+
+router = APIRouter(prefix="/v1/cars", tags=["Cars"])
+
+
+@router.get("/", response_model=ResponseParametersSchema)
+async def get_cars(
+        page: int = Query(0, ge=0),
+        params: ParametersSchema = Depends(),
+        cars_service: CarsService = Depends(get_cars_service)
+):
+    return await cars_service.get_cars_with_params_type(page, params)
+
+
+@router.get("/info", response_model=ResponseCarsType)
+async def get_car_info(
+        params: ParametersSchema = Depends(),
+        cars_service: CarsService = Depends(get_cars_service)
+):
+    return await cars_service.get_cars_with_types(params)
+
+
+@router.get("/{car_id}")
+async def get_car(
+        car_id: int,
+        cars_service: CarsService = Depends(get_cars_service)
+):
+    return await cars_service.get_car_by_id(car_id)
