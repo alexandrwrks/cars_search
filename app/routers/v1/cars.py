@@ -1,6 +1,8 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, Query
 
-from app.deps import get_cars_service
+from app.deps import get_cars_service, validate_parameters
 from app.schemas.filters import ResponseParametersSchema, ParametersSchema, ResponseCarsType
 from app.services.cars import CarsService
 
@@ -10,7 +12,7 @@ router = APIRouter(prefix="/v1/cars", tags=["Cars"])
 @router.get("/", response_model=ResponseParametersSchema)
 async def get_cars(
         page: int = Query(0, ge=0),
-        params: ParametersSchema = Depends(),
+        params: ParametersSchema = Depends(validate_parameters),
         cars_service: CarsService = Depends(get_cars_service)
 ):
     return await cars_service.get_cars_with_params_type(page, params)
@@ -18,7 +20,7 @@ async def get_cars(
 
 @router.get("/info", response_model=ResponseCarsType)
 async def get_car_info(
-        params: ParametersSchema = Depends(),
+        params: ParametersSchema = Depends(validate_parameters),
         cars_service: CarsService = Depends(get_cars_service)
 ):
     return await cars_service.get_cars_with_types(params)

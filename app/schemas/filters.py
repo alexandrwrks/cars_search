@@ -37,31 +37,6 @@ class ParametersSchema(BaseModel):
 
     sort: SortType = SortType.newest
 
-    @model_validator(mode="after")
-    def check_values(self):
-        if (
-            self.price_from is not None
-            and self.price_to is not None
-            and self.price_from > self.price_to
-        ):
-            raise ValueError("price_from не может быть больше price_to")
-
-        if (
-            self.year_from is not None
-            and self.year_to is not None
-            and self.year_from > self.year_to
-        ):
-            raise ValueError("year_from не может быть больше year_to")
-
-        if (
-            self.volume_from is not None
-            and self.volume_to is not None
-            and self.volume_from > self.volume_to
-        ):
-            raise ValueError("volume_from не может быть больше volume_to")
-
-        return self
-
 
 
 class FiltersSchema(BaseModel):
