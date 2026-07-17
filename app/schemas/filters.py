@@ -1,7 +1,7 @@
 from enum import StrEnum
 from typing import List
 
-from pydantic import BaseModel, ConfigDict, model_validator, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class SortType(StrEnum):

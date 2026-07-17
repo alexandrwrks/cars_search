@@ -1,11 +1,14 @@
 from typing import AsyncGenerator
 
 from fastapi import Depends, HTTPException
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.config import new_session
 from app.schemas.filters import ParametersSchema
+from app.services.auth_service import AuthService
 from app.services.cars import CarsService
+from app.services.user_service import UserService
 
 
 async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
@@ -54,3 +57,23 @@ def validate_parameters(
         )
 
     return params
+
+
+async def get_auth_service(
+        session: AsyncSession = Depends(get_async_session),
+):
+    return AuthService(session)
+
+security = HTTPBearer()
+
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    auth_service: AuthService = Depends(get_auth_service)
+):
+    return await auth_service.check_user(credentials.credentials)
+
+
+async def get_user_service(
+        session: AsyncSession = Depends(get_async_session)
+):
+    return UserService(session)

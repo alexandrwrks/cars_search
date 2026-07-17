@@ -71,6 +71,7 @@ class Cars(Base):
         cascade="all, delete, delete-orphan",
     )
 
+
 class CarImage(Base):
     __tablename__ = 'car_image'
 
@@ -84,3 +85,12 @@ class CarImage(Base):
         "Cars",
         back_populates="images"
     )
+
+
+class Users(Base):
+    __tablename__ = 'users'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    username: Mapped[str] = mapped_column(unique=True, nullable=False)
+
+    created_at: Mapped[datetime] = mapped_column(TIMESTAMP, default=func.now())
