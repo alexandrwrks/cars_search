@@ -1,21 +1,32 @@
 from datetime import datetime, timedelta, UTC
+from typing import Any
 
 import jwt
+from jwt import ExpiredSignatureError, InvalidTokenError
 from fastapi import HTTPException, status
+
+from app.schemas.response import ResponseUserSchema
+from utils.logger import logger
+from utils.settings import settings
 
 
 class JWTService:
+    ACCESS = "access"
+    REFRESH = "refresh"
+
     def __init__(self):
         self.ALGORITHM = 'HS256'
-        self.ACCESS_TOKEN_MINUTES = 30
-        self.REFRESH_TOKEN_DAYS = 30
-        self.SECRET_API_KEY = "67993c17230db7155fde061a98a444441bfa92d1e0f2c5863a70731b768dc9d2"
+        self.ACCESS_TOKEN_MINUTES = settings.ACCESS_TOKEN_MINUTES
+        self.REFRESH_TOKEN_DAYS = settings.REFRESH_TOKEN_DAYS
+        self.SECRET_API_KEY = settings.SECRET_API_KEY
 
-    async def create_token(self, user_id: int) -> str:
+
+    def create_token(self, user_id: int, token_type: str, delta: timedelta) -> str:
         now = datetime.now(UTC)
         payload = {
             "sub": str(user_id),
-            "exp": now + timedelta(minutes=self.ACCESS_TOKEN_MINUTES),
+            "token_type": token_type,
+            "exp": now + delta,
             "iat": now,
         }
 
@@ -25,19 +36,69 @@ class JWTService:
             algorithm=self.ALGORITHM
         )
 
-    async def verify_token(self, credentials: str) -> dict:
+    def get_tokens(self, user_id: int) -> ResponseUserSchema:
+        return ResponseUserSchema(
+            access_token=self.create_access_token(user_id),
+            refresh_token=self.create_refresh_token(user_id),
+        )
+
+    def create_access_token(self, user_id: int) -> str:
+        return self.create_token(
+            user_id=user_id,
+            token_type=self.ACCESS,
+            delta=timedelta(minutes=self.ACCESS_TOKEN_MINUTES)
+        )
+
+    def create_refresh_token(self, user_id: int) -> str:
+        return self.create_token(
+            user_id=user_id,
+            token_type=self.REFRESH,
+            delta=timedelta(days=self.REFRESH_TOKEN_DAYS)
+        )
+
+    def verify_token(self, credentials: str) -> dict[str, Any]:
         try:
             return jwt.decode(
                 credentials,
                 self.SECRET_API_KEY,
                 algorithms=[self.ALGORITHM]
             )
-        except Exception as e:
-            print(e)
+        except ExpiredSignatureError:
+            logger.warning("Access token expired")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Not valid token",
+                detail="Token expired",
             )
+        except InvalidTokenError:
+            logger.warning("Invalid JWT token")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token",
+            )
+
+    def verify_token_type(self, payload: dict[str, Any], token_type: str) -> dict[str, Any]:
+        user_id = payload.get("sub")
+        if user_id is None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid payload",
+            )
+        if payload.get("token_type") != token_type:
+            logger.error("Invalid token type %s", token_type)
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token type",
+            )
+
+        return payload
+
+    async def verify_refresh_token(self, credentials: str) -> dict[str, Any]:
+        payload = self.verify_token(credentials)
+        return self.verify_token_type(payload, self.REFRESH)
+
+    async def verify_access_token(self, credentials: str) -> dict[str, Any]:
+        payload = self.verify_token(credentials)
+        return self.verify_token_type(payload, self.ACCESS)
 
 
 

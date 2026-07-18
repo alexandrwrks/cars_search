@@ -8,6 +8,11 @@ class Settings(BaseSettings):
     DB_PORT: str
     DB_NAME: str
 
+    SECRET_API_KEY: str
+
+    ACCESS_TOKEN_MINUTES: int
+    REFRESH_TOKEN_DAYS: int
+
     model_config = SettingsConfigDict(
         env_file=".env",
         extra="ignore",
