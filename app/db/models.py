@@ -71,6 +71,8 @@ class Cars(Base):
         cascade="all, delete, delete-orphan",
     )
 
+    favorites: Mapped[List["Favorites"]] = relationship("Favorites", back_populates="car")
+
 
 class CarImage(Base):
     __tablename__ = 'car_image'
@@ -94,3 +96,44 @@ class Users(Base):
     username: Mapped[str] = mapped_column(unique=True, nullable=False)
 
     created_at: Mapped[datetime] = mapped_column(TIMESTAMP, default=func.now())
+
+    favorites: Mapped[List["Favorites"]] = relationship("Favorites", back_populates="user")
+
+    refresh_tokens: Mapped[List["RefreshTokens"]] = relationship(
+        "RefreshTokens",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+
+class Favorites(Base):
+    __tablename__ = 'favorites'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
+    car_id  = mapped_column(ForeignKey("cars.id"), primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(TIMESTAMP, default=func.now())
+
+    user: Mapped["Users"] = relationship(
+        "Users",
+        back_populates="favorites"
+    )
+
+    car: Mapped["Cars"] = relationship(
+        "Cars",
+        back_populates="favorites"
+    )
+
+class RefreshTokens(Base):
+    __tablename__ = 'refresh_tokens'
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    token: Mapped[str] = mapped_column(nullable=False, unique=True)
+
+    expired: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), nullable=False)
+
+    created_at: Mapped[datetime] = mapped_column(TIMESTAMP, default=func.now())
+
+    user: Mapped["Users"] = relationship(
+        "Users",
+        back_populates="refresh_tokens"
+    )

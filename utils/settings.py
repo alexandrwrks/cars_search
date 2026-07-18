@@ -21,6 +21,10 @@ class Settings(BaseSettings):
 
     @property
     def DATABASE_URL(self) -> str:
+        """
+        :return:
+            URL для рабочей БД
+        """
         return (
             f"postgresql+asyncpg://"
             f"{self.DB_USER}:{self.DB_PASSWORD}"
@@ -30,6 +34,10 @@ class Settings(BaseSettings):
 
     @property
     def TEST_DATABASE_URL(self) -> str:
+        """
+        :return:
+            URL для тестовой БД
+        """
         return (
             f"postgresql+asyncpg://"
             f"{self.DB_USER}:{self.DB_PASSWORD}"
@@ -39,6 +47,10 @@ class Settings(BaseSettings):
 
     @property
     def ALEMBIC_DATABASE_URL(self):
+        """
+        :return:
+            URL для работы с миграциями в рабочей БД
+        """
         return (
             f"postgresql://"
             f"{self.DB_USER}:{self.DB_PASSWORD}"

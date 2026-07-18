@@ -124,7 +124,10 @@ class CarsRepository:
     async def get_car_by_id(self, car_id: int) -> Cars | None:
         result = await self.session.execute(
             select(Cars)
-            .where(Cars.car_id == car_id)
+            .where(
+                Cars.car_id == car_id,
+                Cars.is_active.is_(True),
+            )
         )
 
         return result.scalar_one_or_none()

@@ -1,4 +1,4 @@
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Any
 
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -64,10 +64,16 @@ async def get_auth_service(
 ):
     return AuthService(session)
 
-security = HTTPBearer()
+access_security = HTTPBearer(
+    scheme_name="AccessToken"
+)
+
+refresh_security = HTTPBearer(
+    scheme_name="RefreshToken"
+)
 
 async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
+    credentials: HTTPAuthorizationCredentials = Depends(access_security),
     auth_service: AuthService = Depends(get_auth_service)
 ):
     return await auth_service.check_user(credentials.credentials)
@@ -77,3 +83,8 @@ async def get_user_service(
         session: AsyncSession = Depends(get_async_session)
 ):
     return UserService(session)
+
+async def get_refresh_token(
+    credentials: HTTPAuthorizationCredentials = Depends(refresh_security),
+):
+    return credentials.credentials

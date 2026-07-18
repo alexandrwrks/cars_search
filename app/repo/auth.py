@@ -1,7 +1,10 @@
-from sqlalchemy import select, insert
+from datetime import datetime, UTC, timedelta
+
+from sqlalchemy import select, insert, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.models import Users
+from app.db.models import Users, RefreshTokens
+from utils.settings import Settings, settings
 
 
 class AuthRepo:
@@ -31,4 +34,49 @@ class AuthRepo:
             .where(Users.id == user_id)
         )
 
+        return result.scalar_one_or_none()
+
+    async def delete_token(self, user_id: int, refresh_token: str) -> None:
+        await self.session.execute(
+            delete(RefreshTokens)
+            .where(
+                RefreshTokens.token == refresh_token,
+                RefreshTokens.user_id == user_id
+            )
+        )
+
+    async def insert_refresh_token(self, user_id: int, token: str) -> None:
+        await self.session.execute(
+            insert(RefreshTokens)
+            .values(
+                user_id=user_id,
+                token=token,
+                expired=datetime.now(UTC) + timedelta(days=settings.REFRESH_TOKEN_DAYS)
+            )
+        )
+
+    async def update_refresh_token(self, user_id: int, token: str) -> None:
+        await self.session.execute(
+            update(RefreshTokens)
+            .where(RefreshTokens.user_id == user_id)
+            .values(
+                user_id=user_id,
+                token=token,
+                expired=datetime.now(UTC) + timedelta(days=settings.REFRESH_TOKEN_DAYS)
+            )
+        )
+
+    async def get_refresh_token(self, user_id: int) -> RefreshTokens | None:
+        result = await self.session.execute(
+            select(RefreshTokens)
+            .where(RefreshTokens.user_id == user_id)
+        )
+
+        return result.scalar_one_or_none()
+
+    async def get_by_token(self, refresh_token: str) -> RefreshTokens | None:
+        result = await self.session.execute(
+            select(RefreshTokens)
+            .where(RefreshTokens.token == refresh_token)
+        )
         return result.scalar_one_or_none()

@@ -11,6 +11,12 @@ from utils.settings import settings
 
 
 class JWTService:
+    """
+    Сервис для работы с JWT-токенами.
+
+	Предоставляет методы для создания, проверки и декодирования
+	access и refresh токенов.
+    """
     ACCESS = "access"
     REFRESH = "refresh"
 
@@ -79,12 +85,13 @@ class JWTService:
     def verify_token_type(self, payload: dict[str, Any], token_type: str) -> dict[str, Any]:
         user_id = payload.get("sub")
         if user_id is None:
+            logger.error("Invalid payload")
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
+                status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid payload",
             )
         if payload.get("token_type") != token_type:
-            logger.error("Invalid token type %s", token_type)
+            logger.error("Invalid token type")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid token type",
@@ -92,14 +99,13 @@ class JWTService:
 
         return payload
 
-    async def verify_refresh_token(self, credentials: str) -> dict[str, Any]:
+    def verify_refresh_token(self, credentials: str) -> dict[str, Any]:
         payload = self.verify_token(credentials)
         return self.verify_token_type(payload, self.REFRESH)
 
-    async def verify_access_token(self, credentials: str) -> dict[str, Any]:
+    def verify_access_token(self, credentials: str) -> dict[str, Any]:
         payload = self.verify_token(credentials)
         return self.verify_token_type(payload, self.ACCESS)
-
 
 
 jwt_service = JWTService()
