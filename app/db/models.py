@@ -137,3 +137,31 @@ class RefreshTokens(Base):
         "Users",
         back_populates="refresh_tokens"
     )
+
+class APIUsers(Base):
+    __tablename__ = 'api_users'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    email: Mapped[str] = mapped_column(unique=True, nullable=False)
+    password: Mapped[str] = mapped_column(nullable=False)
+
+class Plans(Base):
+    __tablename__ = 'plans'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(nullable=False)
+    requests_per_day: Mapped[int] = mapped_column(nullable=False)
+    requests_per_minute: Mapped[int] = mapped_column(nullable=False)
+
+    max_requests: Mapped[int] = mapped_column(nullable=False)
+
+class APIKeys(Base):
+    __tablename__ = 'api_keys'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("api_users.id"), nullable=False)
+    name: Mapped[str] = mapped_column(nullable=False)
+    key_hash: Mapped[str] = mapped_column(nullable=False)
+    plan_id: Mapped[int] = mapped_column(ForeignKey("plans.id"), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(TIMESTAMP, default=func.now())

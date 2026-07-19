@@ -7,12 +7,14 @@ class Settings(BaseSettings):
     DB_HOST: str
     DB_PORT: str
     DB_NAME: str
-    TEST_DB_NAME: str
 
     SECRET_API_KEY: str
 
     ACCESS_TOKEN_MINUTES: int
     REFRESH_TOKEN_DAYS: int
+
+    API_ACCESS_TOKEN_MINUTES: int
+    API_REFRESH_TOKEN_DAYS: int
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -30,19 +32,6 @@ class Settings(BaseSettings):
             f"{self.DB_USER}:{self.DB_PASSWORD}"
             f"@{self.DB_HOST}:{self.DB_PORT}"
             f"/{self.DB_NAME}"
-        )
-
-    @property
-    def TEST_DATABASE_URL(self) -> str:
-        """
-        :return:
-            URL для тестовой БД
-        """
-        return (
-            f"postgresql+asyncpg://"
-            f"{self.DB_USER}:{self.DB_PASSWORD}"
-            f"@{self.DB_HOST}:{self.DB_PORT}"
-            f"/{self.TEST_DB_NAME}"
         )
 
     @property
