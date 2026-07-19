@@ -1,6 +1,6 @@
 from typing import List
 
-from sqlalchemy import insert, update
+from sqlalchemy import insert, update, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.models import Currency
@@ -36,3 +36,10 @@ class ExchangeRepo:
                     rate_updated_at=currency.date
                 )
             )
+
+    async def get_currency_rate(self) -> List[Currency]:
+        result = await self.session.execute(
+            select(Currency)
+        )
+
+        return result.scalars().all()

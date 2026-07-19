@@ -2,6 +2,7 @@ import httpx
 from sqlalchemy.exc import IntegrityError
 
 from database.config import new_session
+from database.models import CurrencyType
 from scripts.parsers.info_about_car import parse_car
 from app.repo.cars import CarsRepository
 
@@ -25,7 +26,9 @@ class CarServiceAdd:
 
                     url = f"https://kolesa.kz/a/show/{parsed_car.car_id}"
 
-                    await cars_repo.add_car_parameters(car_id=car_id, url=url, car=parsed_car.car)
+                    await cars_repo.add_car_parameters(
+                        car_id=car_id, url=url, car=parsed_car.car, currency=CurrencyType.KZT
+                    )
                     print("Параметры машины успешно добавились")
                     if parsed_car.images.images:
                         values = [

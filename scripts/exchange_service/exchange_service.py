@@ -48,5 +48,29 @@ class ExchangeService:
         except Exception:
             logger.error("Не удачное обновление валют")
 
+    async def get_currency_rate(self) -> List[CurrencySchema] | None:
+        try:
+            async with new_session() as session:
+                exchange_repo = ExchangeRepo(session)
+
+                async with session.begin():
+
+                    data = await exchange_repo.get_currency_rate()
+                    logger.info("Успешное обновление валют")
+
+                    return [
+                        CurrencySchema(
+                            date=currency.rate_updated_at,
+                            base=currency.base_currency,
+                            quote=currency.quote_currency,
+                            rate=currency.rate,
+                        )
+                        for currency in data
+                    ]
+
+        except Exception:
+            logger.error("Не удалось получить данные о валютах")
+            return None
+
 
 exchange_service = ExchangeService()

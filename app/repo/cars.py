@@ -157,12 +157,13 @@ class CarsRepository:
 
         return result.scalars().all()
 
-    async def add_car_parameters(self, car_id: int, url: str, car: CarInfo):
+    async def add_car_parameters(self, car_id: int, url: str, car: CarInfo, currency: str):
         await self.session.execute(
             insert(Cars)
             .values(
                 car_id=car_id,
                 url=url,
+                currency=currency,
                 **car.model_dump()
             )
         )

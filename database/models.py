@@ -10,6 +10,12 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 class Base(DeclarativeBase):
     pass
 
+class CurrencyType(StrEnum):
+    USD = "USD"
+    EUR = "EUR"
+    KZT = "KZT"
+    RUB = "RUB"
+
 class Links(Base):
     __tablename__ = 'links'
 
@@ -40,6 +46,7 @@ class Cars(Base):
     year: Mapped[int] = mapped_column(nullable=False, index=True)
 
     price: Mapped[int] = mapped_column(nullable=False, index=True)
+    currency: Mapped[CurrencyType] = mapped_column(nullable=False)
 
     city: Mapped[str] = mapped_column(nullable=False, index=True)
     region: Mapped[str | None] = mapped_column(nullable=True)
@@ -139,13 +146,6 @@ class RefreshTokens(Base):
         "Users",
         back_populates="refresh_tokens"
     )
-
-
-class CurrencyType(StrEnum):
-    USD = "USD"
-    EUR = "EUR"
-    KZT = "KZT"
-    RUB = "RUB"
 
 
 class Currency(Base):
