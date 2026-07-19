@@ -1,7 +1,9 @@
-from datetime import datetime
+from datetime import datetime, date
+from decimal import Decimal
+from enum import StrEnum
 from typing import List
 
-from sqlalchemy import text, TIMESTAMP, func, String, ForeignKey, ARRAY, Integer
+from sqlalchemy import text, TIMESTAMP, func, String, ForeignKey, ARRAY, Integer, Date, DECIMAL
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -137,3 +139,24 @@ class RefreshTokens(Base):
         "Users",
         back_populates="refresh_tokens"
     )
+
+
+class CurrencyType(StrEnum):
+    USD = "USD"
+    EUR = "EUR"
+    KZT = "KZT"
+    RUB = "RUB"
+
+
+class Currency(Base):
+    __tablename__ = 'currency'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    base_currency: Mapped[CurrencyType] = mapped_column(nullable=False)
+    quote_currency: Mapped[CurrencyType] = mapped_column(nullable=False)
+
+    rate: Mapped[Decimal] = mapped_column(DECIMAL, nullable=False)
+
+    rate_updated_at: Mapped[date] = mapped_column(Date)
+    updated_at: Mapped[datetime] = mapped_column(TIMESTAMP, default=func.now(), onupdate=func.now())
+

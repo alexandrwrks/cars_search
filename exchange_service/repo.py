@@ -1,15 +1,15 @@
 from sqlalchemy import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.models import Links
+from database.models import Currency
 
 
-class LinksRepo:
+class ExchangeRepo:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def add_link(self, car_id: int, title: str):
+    async def insert_currency(self, currency_data: dict):
         await self.session.execute(
-            insert(Links)
-            .values(car_id=car_id, title=title)
+            insert(Currency)
+            .values(**currency_data)
         )

@@ -3,7 +3,7 @@ from sqlalchemy import select, desc, insert, update, text, or_, cast, String, an
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import Select
 
-from app.db.models import Links, Cars, CarImage
+from database.models import Links, Cars, CarImage
 from app.schemas.schemas import CarInfo
 from app.schemas.filters import ParametersSchema, SortType
 

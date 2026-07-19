@@ -1,6 +1,6 @@
 import asyncio
 
-from app.db.models import Base
+from database.models import Base
 from tests.database import test_engine
 
 
