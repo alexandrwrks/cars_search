@@ -1,9 +1,7 @@
-from typing import List
-
-from sqlalchemy import select, func, insert
+from sqlalchemy import select, insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.models import Favorites, Cars
+from database.models import Favorites, Cars
 
 
 class FavoriteRepo:

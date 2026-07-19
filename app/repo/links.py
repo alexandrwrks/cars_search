@@ -1,7 +1,7 @@
 from sqlalchemy import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.models import Links
+from database.models import Links
 
 
 class LinksRepo:

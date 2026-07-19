@@ -6,13 +6,16 @@ import uvicorn
 from fastapi import FastAPI
 
 from app.routers import routers
+from scripts.scheduler import scheduler
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
-    print("Lifespan...")
+    scheduler.start()
+
     yield
 
+    scheduler.shutdown()
 
 app = FastAPI(lifespan=lifespan, title="CarsAPI")
 
@@ -21,4 +24,4 @@ for router in routers:
 
 
 if __name__ == "__main__":
-    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("app.main:app", host="0.0.0.0", port=8000)

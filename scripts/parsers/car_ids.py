@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 from sqlalchemy.exc import IntegrityError
 
 from app.repo.links import LinksRepo
-from app.db.config import new_session
+from database.config import new_session
 from app.extract import extract_car_id
 
 url = "https://kolesa.kz/cars/"

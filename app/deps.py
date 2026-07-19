@@ -1,10 +1,10 @@
-from typing import AsyncGenerator, Any
+from typing import AsyncGenerator
 
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.config import new_session
+from database.config import new_session
 from app.schemas.filters import ParametersSchema
 from app.services.auth_service import AuthService
 from app.services.cars import CarsService

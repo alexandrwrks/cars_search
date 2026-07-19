@@ -3,8 +3,8 @@ from datetime import datetime, UTC, timedelta
 from sqlalchemy import select, insert, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.models import Users, RefreshTokens
-from utils.settings import Settings, settings
+from database.models import Users, RefreshTokens
+from utils.settings import settings
 
 
 class AuthRepo:

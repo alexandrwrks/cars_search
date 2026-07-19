@@ -3,7 +3,7 @@ from sqlalchemy import select, desc, insert, update, text, or_, cast, String, an
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import Select
 
-from app.db.models import Links, Cars, CarImage
+from database.models import Links, Cars, CarImage
 from app.schemas.schemas import CarInfo
 from app.schemas.filters import ParametersSchema, SortType
 
@@ -157,12 +157,13 @@ class CarsRepository:
 
         return result.scalars().all()
 
-    async def add_car_parameters(self, car_id: int, url: str, car: CarInfo):
+    async def add_car_parameters(self, car_id: int, url: str, car: CarInfo, currency: str):
         await self.session.execute(
             insert(Cars)
             .values(
                 car_id=car_id,
                 url=url,
+                currency=currency,
                 **car.model_dump()
             )
         )
