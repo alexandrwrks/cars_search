@@ -1,35 +1,54 @@
 import asyncio
+from datetime import datetime
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.interval import IntervalTrigger
+from apscheduler.triggers.cron import CronTrigger
 
-from exchange_service.get_currency import get_need_currency
+
+scheduler = AsyncIOScheduler()
 
 
-"""
-scheduler.start()
+async def update_rete_currency():
+    print(datetime.now().strftime("%d.%m.%Y %H:%M%S"))
+    print("Обновление валют")
 
-scheduler.shutdown()
 
-"""
+async def parse_new_cars():
+    print(datetime.now().strftime("%d.%m.%Y %H:%M%S"))
+    print("Парсинг новых машин")
+
+
+async def send_news():
+    print(datetime.now().strftime("%d.%m.%Y %H:%M%S"))
+    print("Отправка сообщения об успехе")
+
+scheduler.add_job(
+    update_rete_currency,
+    trigger=IntervalTrigger(seconds=30),
+    id="update_rete_currency",
+)
+
+scheduler.add_job(
+    send_news,
+    trigger=CronTrigger(hour=17, minute=45),
+    id="send_news",
+)
+
+scheduler.add_job(
+    parse_new_cars,
+    trigger=IntervalTrigger(minutes=1),
+    id="parse_new_cars",
+)
 
 async def main():
-    scheduler = AsyncIOScheduler()
-
-    scheduler.add_job(
-        get_need_currency,
-        'interval',
-        seconds=10,
-    )
 
     scheduler.start()
-    print("Планировщик запущен в фоновом режиме.")
 
-    while True:
-        await asyncio.sleep(1)
-
+    await asyncio.Event().wait()
 
 if __name__ == "__main__":
     try:
         asyncio.run(main())
-    except (KeyboardInterrupt, SystemExit):
-        print("Планировщик остановлен.")
+    except KeyboardInterrupt:
+        print("Конец...")

@@ -1,8 +1,8 @@
 import httpx
 from sqlalchemy.exc import IntegrityError
 
-from database import new_session
-from app.parsers.info_about_car import parse_car
+from database.config import new_session
+from scripts.parsers.info_about_car import parse_car
 from app.repo.cars import CarsRepository
 
 

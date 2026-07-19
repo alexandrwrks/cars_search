@@ -3,12 +3,11 @@ from datetime import datetime
 
 import httpx
 
-from app.services.cars_add import car_service_add
+from scripts.service.add_cars_service import car_service_add
 
 
 async def main():
-    now = datetime.now()
-    print(now.strftime("%d.%m.%Y %H:%M"))
+    print(datetime.now().strftime("%d.%m.%Y %H:%M"))
     print("Начало парсинга...")
     async with httpx.AsyncClient(timeout=30.0) as client:
         while True:
@@ -23,7 +22,8 @@ async def main():
             await asyncio.sleep(10 * 60)
 
 
-    print("Конец парсинга...")
-
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("Конец парсинга...")

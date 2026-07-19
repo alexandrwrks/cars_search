@@ -4,7 +4,7 @@ import httpx
 
 from database.models import CurrencyType
 
-async def get_need_currency():
+async def get_new_currency():
     async with httpx.AsyncClient() as client:
         need_currency = ",".join(currency.value for currency in CurrencyType)
         print(need_currency)
@@ -15,4 +15,4 @@ async def get_need_currency():
         print(response.json())
 
 if __name__ == "__main__":
-    asyncio.run(get_need_currency())
+    asyncio.run(get_new_currency())
