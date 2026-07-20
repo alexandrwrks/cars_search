@@ -79,12 +79,12 @@ class AuthService:
         await self.auth_repo.update_refresh_token(user_id=user_id, token=tokens.refresh_token)
         return tokens
 
-    async def logout(self, user_id: int, refresh_token: str):
+    async def logout(self, refresh_token: str):
         payload = jwt_service.verify_refresh_token(refresh_token)
-        if payload['sub'] != user_id:
+        if not payload['sub']:
             raise HTTPException(status_code=404, detail="Not valid token for user")
 
-        await self.auth_repo.delete_token(user_id, refresh_token)
+        await self.auth_repo.delete_token(int(payload["sub"]), refresh_token)
         return {
             "message": "User logged out"
         }

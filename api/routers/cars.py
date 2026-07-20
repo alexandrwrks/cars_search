@@ -15,14 +15,9 @@ router = APIRouter(
 
 @router.get("/")
 async def latest(
-        request: Request,
         page: int = Query(0),
         params: ParametersSchema = Depends(validate_parameters),
         api_key: APIKeys = Depends(check_api_key),
         cars_service: CarsService = Depends(get_cars_service),
 ):
-    cars = await cars_service.get_cars_with_params_type(page, params)
-    return (
-        request.headers["x-api-key"],
-        cars
-    )
+    return await cars_service.get_cars_with_params_type(page, params)

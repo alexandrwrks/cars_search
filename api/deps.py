@@ -2,19 +2,21 @@ from fastapi import Header, HTTPException, status, Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api.repo.api_repo import APIRepo
+from api.service.api_key_service import APIKeyService
 from api.service.auth_service import AuthService
 from app.deps import get_async_session
 
-API_KEY = "my_secret_key"
-
-
 async def check_api_key(
     x_api_key: str = Header(alias="X-API-KEY"),
+    session: AsyncSession = Depends(get_async_session),
 ):
-    if x_api_key != API_KEY:
+    api_key = APIRepo(session)
+    exists_keys = await api_key.get_keys_by_key(x_api_key)
+    if exists_keys is None:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Invalid API Key",
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid X-API-KEY",
         )
 
 
@@ -50,3 +52,8 @@ async def get_refresh_token(
     credentials: HTTPAuthorizationCredentials = Depends(refresh_security),
 ):
     return credentials.credentials
+
+async def get_api_service(
+        session: AsyncSession = Depends(get_async_session),
+):
+    return APIKeyService(session)
