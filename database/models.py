@@ -166,6 +166,16 @@ class APIUsers(Base):
     email: Mapped[str] = mapped_column(unique=True, nullable=False)
     password: Mapped[str] = mapped_column(nullable=False)
 
+    created_at: Mapped[datetime] = mapped_column(TIMESTAMP, default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(TIMESTAMP, default=func.now(), onupdate=func.now())
+
+    refresh_tokens: Mapped[List["APIRefreshTokens"]] = relationship(
+        "APIRefreshTokens",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+
+
 class Plans(Base):
     __tablename__ = 'plans'
 
@@ -186,3 +196,18 @@ class APIKeys(Base):
     key_hash: Mapped[str] = mapped_column(nullable=False)
     plan_id: Mapped[int] = mapped_column(ForeignKey("plans.id"), nullable=False)
     created_at: Mapped[datetime] = mapped_column(TIMESTAMP, default=func.now())
+
+class APIRefreshTokens(Base):
+    __tablename__ = 'api_refresh_tokens'
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("api_users.id"), primary_key=True)
+    token: Mapped[str] = mapped_column(nullable=False, unique=True)
+
+    expired: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), nullable=False)
+
+    created_at: Mapped[datetime] = mapped_column(TIMESTAMP, default=func.now())
+
+    user: Mapped["APIUsers"] = relationship(
+        "APIUsers",
+        back_populates="refresh_tokens"
+    )

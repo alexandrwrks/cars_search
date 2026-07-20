@@ -1,9 +1,11 @@
-from fastapi import APIRouter, Depends
-
+from fastapi import APIRouter, Depends, Query, Request
 
 from api.deps import check_api_key
+from app.deps import get_cars_service, validate_parameters
+from app.schemas.filters import SortType, ParametersSchema
+from app.services.cars import CarsService
 
-from app.db.models import APIKeys
+from database.models import APIKeys
 
 router = APIRouter(
     prefix="/openapi/v1/cars",
@@ -11,8 +13,16 @@ router = APIRouter(
 )
 
 
-@router.get("/latest")
+@router.get("/")
 async def latest(
-        api_key: APIKeys = Depends(check_api_key)
+        request: Request,
+        page: int = Query(0),
+        params: ParametersSchema = Depends(validate_parameters),
+        api_key: APIKeys = Depends(check_api_key),
+        cars_service: CarsService = Depends(get_cars_service),
 ):
-    return {"data": []}
+    cars = await cars_service.get_cars_with_params_type(page, params)
+    return (
+        request.headers["x-api-key"],
+        cars
+    )

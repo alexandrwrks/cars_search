@@ -1,5 +1,9 @@
-from fastapi import Header, HTTPException, status, Request
-from starlette.middleware.base import BaseHTTPMiddleware
+from fastapi import Header, HTTPException, status, Depends
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from api.service.auth_service import AuthService
+from app.deps import get_async_session
 
 API_KEY = "my_secret_key"
 
@@ -23,14 +27,26 @@ async def verify_user_agent(
             detail="Invalid User Agent",
         )
 
+access_security = HTTPBearer(
+    scheme_name="AccessToken"
+)
 
-class VerifyHeadersMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
-        api_key = request.headers.get("X-Api-Key")
+refresh_security = HTTPBearer(
+    scheme_name="RefreshToken"
+)
 
-        if api_key != API_KEY:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN, detail="Invalid API Key"
-            )
+async def get_auth_service(
+        session: AsyncSession = Depends(get_async_session),
+):
+    return AuthService(session)
 
-        return await call_next(request)
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(access_security),
+    auth_service: AuthService = Depends(get_auth_service)
+):
+    return await auth_service.check_user(credentials.credentials)
+
+async def get_refresh_token(
+    credentials: HTTPAuthorizationCredentials = Depends(refresh_security),
+):
+    return credentials.credentials

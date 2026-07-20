@@ -3,7 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.repo.auth_repo import AuthRepo
 from api.schema import AuthorizationSchema
-from api.service.jwt_service import jwt_service
+from jwt_service import jwt_service
+
 
 class AuthService:
     def __init__(self, session: AsyncSession):
@@ -12,12 +13,13 @@ class AuthService:
     async def register(self, data: AuthorizationSchema):
         exists_user = await self.auth_repo.get_user(data.email)
         if exists_user is not None:
-            raise HTTPException(status_code=404, detail="User with this email already exists")
+            raise HTTPException(status_code=404, detail="User with this username already exists")
 
         user_id = await self.auth_repo.create_user(data)
-        return ReponseAuthorizationSchema(
-
-        )
+        return {
+            "user_id": user_id,
+            "email": data.email,
+        }
 
     async def login(self, data: AuthorizationSchema):
         """
@@ -33,7 +35,7 @@ class AuthService:
         :raise
             HTTPException
         """
-        user = await self.auth_repo.get_user(username)
+        user = await self.auth_repo.get_user(data.email)
         if user is None:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,

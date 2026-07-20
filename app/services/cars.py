@@ -14,7 +14,6 @@ class CarsService:
     async def get_cars(self, page: int, sort: SortType):
         return await self.cars_repo.get_cars(page, sort)
 
-
     async def get_car_by_id(self, car_id: int):
         car_info = await self.cars_repo.get_car_by_id(car_id)
         if car_info is None:

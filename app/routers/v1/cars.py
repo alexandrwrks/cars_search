@@ -1,5 +1,3 @@
-from typing import Annotated
-
 from fastapi import APIRouter, Depends, Query
 
 from app.deps import get_cars_service, validate_parameters
