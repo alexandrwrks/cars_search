@@ -13,6 +13,7 @@ async def register(
         username: str = Query(..., min_length=3),
         auth_service: AuthService = Depends(get_auth_service),
 ):
+    """Регистрация нового пользователя"""
     return await auth_service.register(username)
 
 
@@ -21,6 +22,7 @@ async def login(
         username: str = Query(..., min_length=3),
         auth_service: AuthService = Depends(get_auth_service),
 ):
+    """Авторизация пользователя"""
     return await auth_service.login(username)
 
 
@@ -29,7 +31,7 @@ async def refresh(
         credentials = Depends(get_refresh_token),
         auth_service: AuthService = Depends(get_auth_service),
 ):
-
+    """Обновление токенов"""
     return await auth_service.refresh(credentials)
 
 
@@ -39,4 +41,5 @@ async def logout(
         current_user: Users = Depends(get_current_user),
         auth_service: AuthService = Depends(get_auth_service),
 ):
+    """Выход из системы с удалением refresh_token"""
     return await auth_service.logout(current_user.id, refresh_token)

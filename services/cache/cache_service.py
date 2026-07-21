@@ -19,7 +19,7 @@ class CacheService:
 
         if schema:
             return schema.model_validate(data)
-        
+
         return json.loads(value)
 
     async def set(

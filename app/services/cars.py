@@ -1,13 +1,17 @@
-from cmath import exp
 from typing import List
 
 from fastapi import HTTPException
-from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.repo.cars import CarsRepository
-from app.schemas.filters import ParametersSchema, SortType, FiltersSchema, ResponseParametersSchema, ResponseCarsType, \
-    CarResponse, FullCarResponse, CarImageSchema
+from app.schemas.filters import (
+    ParametersSchema,
+    SortType,
+    FiltersSchema,
+    ResponseParametersSchema,
+    ResponseCarsType,
+    FullCarResponse
+)
 from services.cache.cache_service import CacheService
 from utils.logger import logger
 
@@ -70,160 +74,76 @@ class CarsService:
             drive=await self.get_drives(params)
     )
 
-    async def get_cities(self, params: ParametersSchema) -> List[FiltersSchema] | List:
-        cities = await self.cars_repo.get_cities(params)
-        if not cities:
-            return []
-
+    async def get_cities(self, params: ParametersSchema) -> List[FiltersSchema]:
         return [
-            FiltersSchema(
-                name=city,
-                count=count
-            )
-            for city, count in cities
+            FiltersSchema(name=city, count=count)
+            for city, count in await self.cars_repo.get_cities(params)
         ]
 
-    async def get_brands(self, params: ParametersSchema) -> List[FiltersSchema] | List:
-        brands = await self.cars_repo.get_brands(params)
-        if not brands:
-            return []
-
+    async def get_brands(self, params: ParametersSchema) -> List[FiltersSchema]:
         return [
-            FiltersSchema(
-                name=brand,
-                count=count
-            )
-            for brand, count in brands
+            FiltersSchema(name=brand, count=count)
+            for brand, count in await self.cars_repo.get_brands(params)
         ]
 
-    async def get_body_types(self, params: ParametersSchema) -> List[FiltersSchema] | List:
-        body_types = await self.cars_repo.get_body_types(params)
-        if not body_types:
-            return []
-
+    async def get_body_types(self, params: ParametersSchema) -> List[FiltersSchema]:
         return [
-            FiltersSchema(
-                name=body_type,
-                count=count
-            )
-            for body_type, count in body_types
+            FiltersSchema(name=body_type, count=count)
+            for body_type, count in await self.cars_repo.get_body_types(params)
         ]
 
-    async def get_transmissions(self, params: ParametersSchema) -> List[FiltersSchema] | List:
-        transmissions = await self.cars_repo.get_transmissions(params)
-        if not transmissions:
-            return []
-
+    async def get_transmissions(self, params: ParametersSchema) -> List[FiltersSchema]:
         return [
-            FiltersSchema(
-                name=transmission,
-                count=count
-            )
-            for transmission, count in transmissions
+            FiltersSchema(name=transmission, count=count)
+            for transmission, count in await self.cars_repo.get_transmissions(params)
         ]
 
-    async def get_engine_volumes(self, params: ParametersSchema) -> List[FiltersSchema] | List:
-        engine_volumes = await self.cars_repo.get_engine_volumes(params)
-        if not engine_volumes:
-            return []
-
+    async def get_engine_volumes(self, params: ParametersSchema) -> List[FiltersSchema]:
         return [
-            FiltersSchema(
-                name=engine_volume,
-                count=count
-            )
-            for engine_volume, count in engine_volumes
+            FiltersSchema(name=engine_volume, count=count)
+            for engine_volume, count in await self.cars_repo.get_engine_volumes(params)
         ]
 
-    async def get_years(self, params: ParametersSchema) -> List[FiltersSchema] | List:
-        years = await self.cars_repo.get_years(params)
-        if not years:
-            return []
-
+    async def get_years(self, params: ParametersSchema) -> List[FiltersSchema]:
         return [
-            FiltersSchema(
-                name=year,
-                count=count
-            )
-            for year, count in years
+            FiltersSchema(name=year, count=count)
+            for year, count in await self.cars_repo.get_years(params)
         ]
 
-    async def get_models(self, params: ParametersSchema) -> List[FiltersSchema] | List:
-        models = await self.cars_repo.get_models(params)
-        if not models:
-            return []
-
+    async def get_models(self, params: ParametersSchema) -> List[FiltersSchema]:
         return [
-            FiltersSchema(
-                name=model,
-                count=count
-            )
-            for model, count in models
+            FiltersSchema(name=model, count=count)
+            for model, count in await self.cars_repo.get_models(params)
         ]
 
-    async def get_fuel_types(self, params: ParametersSchema) -> List[FiltersSchema] | List:
-        types = await self.cars_repo.get_fuel_types(params)
-        if not types:
-            return []
-
+    async def get_fuel_types(self, params: ParametersSchema) -> List[FiltersSchema]:
         return [
-            FiltersSchema(
-                name=type,
-                count=count
-            )
-            for type, count in types
+            FiltersSchema(name=fuel, count=count)
+            for fuel, count in  await self.cars_repo.get_fuel_types(params)
         ]
 
-    async def get_colors(self, params: ParametersSchema) -> List[FiltersSchema] | List:
-        colors = await self.cars_repo.get_colors(params)
-        if not colors:
-            return []
-
+    async def get_colors(self, params: ParametersSchema) -> List[FiltersSchema]:
         return [
-            FiltersSchema(
-                name=color,
-                count=count
-            )
-            for color, count in colors
+            FiltersSchema(name=color, count=count)
+            for color, count in await self.cars_repo.get_colors(params)
         ]
 
-    async def get_steering(self, params: ParametersSchema) -> List[FiltersSchema] | List:
-        steering = await self.cars_repo.get_steering(params)
-        if not steering:
-            return []
-
+    async def get_steering(self, params: ParametersSchema) -> List[FiltersSchema]:
         return [
-            FiltersSchema(
-                name=side,
-                count=count
-            )
-            for side, count in steering
+            FiltersSchema(name=side, count=count)
+            for side, count in await self.cars_repo.get_steering(params)
         ]
 
-    async def get_generations(self, params: ParametersSchema) -> List[FiltersSchema] | List:
-        generations = await self.cars_repo.get_generations(params)
-        if not generations:
-            return []
-
+    async def get_generations(self, params: ParametersSchema) -> List[FiltersSchema]:
         return [
-            FiltersSchema(
-                name=generation,
-                count=count
-            )
-            for generation, count in generations
+            FiltersSchema(name=generation, count=count)
+            for generation, count in await self.cars_repo.get_generations(params)
         ]
 
-    async def get_drives(self, params: ParametersSchema) -> List[FiltersSchema] | List:
-        drives = await self.cars_repo.get_drives(params)
-        if not drives:
-            return []
-
+    async def get_drives(self, params: ParametersSchema) -> List[FiltersSchema]:
         return [
-            FiltersSchema(
-                name=drive,
-                count=count
-            )
-            for drive, count in drives
+            FiltersSchema(name=drive, count=count)
+            for drive, count in await self.cars_repo.get_drives(params)
         ]
 
 

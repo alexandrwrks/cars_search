@@ -1,5 +1,8 @@
-from sqlalchemy import select, insert
+from typing import List
+
+from sqlalchemy import select, insert, delete
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from database.models import Favorites, Cars
 
@@ -37,7 +40,7 @@ class FavoriteRepo:
         """
         result = await self.session.execute(
             select(Cars)
-            .join(Favorites, Favorites.car_id == Cars.id)
+            .join(Favorites, Favorites.car_id == Cars.car_id)
             .where(
                 Favorites.user_id == user_id,
                 Cars.is_active.is_(True),
@@ -46,3 +49,12 @@ class FavoriteRepo:
         )
 
         return result.scalars().all()
+
+    async def delete_favorite(self, user_id: int, car_id: int):
+        await self.session.execute(
+            delete(Favorites)
+            .where(
+                Favorites.user_id == user_id,
+                Favorites.car_id == car_id
+            )
+        )

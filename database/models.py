@@ -118,8 +118,8 @@ class Favorites(Base):
     __tablename__ = 'favorites'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    user_id = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
-    car_id  = mapped_column(ForeignKey("cars.id"), primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
+    car_id: Mapped[int]  = mapped_column(ForeignKey("cars.car_id"), nullable=False, index=True)
     created_at: Mapped[datetime] = mapped_column(TIMESTAMP, default=func.now())
 
     user: Mapped["Users"] = relationship(

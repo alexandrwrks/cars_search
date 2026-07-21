@@ -95,9 +95,10 @@ async def get_current_user(
 
 
 async def get_user_service(
-        session: AsyncSession = Depends(get_async_session)
+        session: AsyncSession = Depends(get_async_session),
+        cache: CacheService = Depends(get_cache_service)
 ):
-    return UserService(session)
+    return UserService(session, cache)
 
 async def get_refresh_token(
     credentials: HTTPAuthorizationCredentials = Depends(refresh_security),
