@@ -4,10 +4,7 @@ from database.models import Users
 from app.deps import get_current_user, get_user_service
 from app.services.user_service import UserService
 
-router = APIRouter(
-    prefix="/v1/personal",
-    tags=["personal"],
-)
+router = APIRouter()
 
 
 @router.get("/info")

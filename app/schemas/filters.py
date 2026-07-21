@@ -1,7 +1,10 @@
+from datetime import datetime
 from enum import StrEnum
 from typing import List
 
 from pydantic import BaseModel, ConfigDict, Field
+
+from database.models import CurrencyType
 
 
 class SortType(StrEnum):
@@ -53,6 +56,58 @@ class CarResponse(BaseModel):
     city: str
 
     model_config = ConfigDict(from_attributes=True)
+
+class CarImageSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    car_id: int
+    position: int
+    image_url: str
+
+class FullCarResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    car_id: int
+    url: str
+
+    is_active: bool
+
+    brand: str
+    model: str
+    generation: str | None
+
+    year: int
+    price: int
+    currency: CurrencyType
+
+    city: str
+    region: str | None
+
+    body_type: str
+
+    engine_volume: float
+    fuel_type:str | None
+
+    transmission: str
+
+    drive: str
+
+    steering: str
+
+    color: str | None
+
+    customs_cleared: bool
+
+    description: str | None
+
+    seller_phone: str | None
+
+    options: List[str]
+
+    created_at: datetime
+    updated_at: datetime
+
+    images: List[CarImageSchema]
 
 class ResponseParametersSchema(BaseModel):
     total: int

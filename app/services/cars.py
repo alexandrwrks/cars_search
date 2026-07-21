@@ -1,28 +1,49 @@
+from cmath import exp
 from typing import List
 
 from fastapi import HTTPException
+from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.repo.cars import CarsRepository
-from app.schemas.filters import ParametersSchema, SortType, FiltersSchema, ResponseParametersSchema, ResponseCarsType
+from app.schemas.filters import ParametersSchema, SortType, FiltersSchema, ResponseParametersSchema, ResponseCarsType, \
+    CarResponse, FullCarResponse, CarImageSchema
+from services.cache.cache_service import CacheService
+from utils.logger import logger
 
 
 class CarsService:
-    def __init__(self, session: AsyncSession):
+    def __init__(self, session: AsyncSession, cache: CacheService):
         self.cars_repo = CarsRepository(session)
+        self.cache = cache
 
     async def get_cars(self, page: int, sort: SortType):
         return await self.cars_repo.get_cars(page, sort)
 
-    async def get_car_by_id(self, car_id: int):
-        car_info = await self.cars_repo.get_car_by_id(car_id)
-        if car_info is None:
+    async def get_car_by_id(self, car_id: int) -> FullCarResponse:
+        key = f"car:{car_id}"
+        cached = await self.cache.get(key, FullCarResponse)
+
+        if cached:
+            logger.info("REDIS: card_id=%s", key)
+            return cached
+
+        car = await self.cars_repo.get_car_by_id(car_id)
+        if car is None:
             raise HTTPException(
                 status_code=404,
                 detail="Car not found"
             )
 
-        return car_info
+        response = FullCarResponse.model_validate(car)
+
+        await self.cache.set(
+            key,
+            value=response.model_dump(mode="json"),
+            expire=3600
+        )
+
+        return response
 
     async def get_cars_with_parameters(self, params: ParametersSchema) -> int:
         total = await self.cars_repo.get_total_cars(params)
@@ -207,14 +228,34 @@ class CarsService:
 
 
     async def get_cars_with_params_type(self, page: int, params: ParametersSchema) -> ResponseParametersSchema:
+        key = f"cars:{page}:{params.model_dump_json()}"
+        cached = await self.cache.get(key, ResponseParametersSchema)
+
+        if cached:
+            logger.info("REDIS: cars=%s", key)
+            return cached
+
         cars = await self.cars_repo.get_conditions(page, params)
         total = await self.cars_repo.get_total_cars(params)
+
+        response = ResponseParametersSchema(
+            total=total,
+            page=page,
+            page_size=len(cars),
+            items=cars
+        )
+
+        await self.cache.set(
+            key,
+            response.model_dump(mode="json"),
+            expire=3600
+        )
 
         if not cars:
             return ResponseParametersSchema(
                 total=0,
                 page=0,
-                page_size=20,
+                page_size=0,
                 items=[]
             )
 

@@ -4,7 +4,7 @@ from app.deps import get_cars_service, validate_parameters
 from app.schemas.filters import ResponseParametersSchema, ParametersSchema, ResponseCarsType
 from app.services.cars import CarsService
 
-router = APIRouter(prefix="/v1/cars", tags=["Cars"])
+router = APIRouter()
 
 
 @router.get("/", response_model=ResponseParametersSchema)

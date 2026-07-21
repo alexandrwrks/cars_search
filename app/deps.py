@@ -2,6 +2,7 @@ from typing import AsyncGenerator
 
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.config import new_session
@@ -9,6 +10,8 @@ from app.schemas.filters import ParametersSchema
 from app.services.auth_service import AuthService
 from app.services.cars import CarsService
 from app.services.user_service import UserService
+from services.cache.cache_service import CacheService
+from services.cache.redis import redis
 
 
 async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
@@ -16,11 +19,23 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
         async with session.begin():
             yield session
 
+async def get_redis() -> Redis:
+    return redis
+
+
+async def get_cache_service(
+        redis: Redis = Depends(get_redis),
+) -> CacheService:
+    return CacheService(redis)
 
 async def get_cars_service(
         session: AsyncSession = Depends(get_async_session),
+        cache: CacheService = Depends(get_cache_service),
 ) -> CarsService:
-    return CarsService(session)
+    return CarsService(
+        session=session,
+        cache=cache
+    )
 
 def validate_parameters(
     params: ParametersSchema = Depends(),

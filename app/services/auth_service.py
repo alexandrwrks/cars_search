@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.repo.auth import AuthRepo
 from app.schemas.response import ResponseUserSchema
-from jwt_service import jwt_service
+from services.jwt_service import jwt_service
 
 class AuthService:
     def __init__(self, session: AsyncSession):

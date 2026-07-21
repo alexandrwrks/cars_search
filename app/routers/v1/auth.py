@@ -5,10 +5,7 @@ from app.deps import get_auth_service, get_current_user, get_refresh_token
 from app.schemas.response import ResponseUserSchema
 from app.services.auth_service import AuthService
 
-router = APIRouter(
-    prefix="/v1/auth",
-    tags=["auth"],
-)
+router = APIRouter()
 
 
 @router.post("/register")

@@ -2,7 +2,7 @@ from datetime import datetime
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
-from apscheduler.triggers.cron import CronTrigger
+from apscheduler.triggers.cron import CronTrigger, UTC
 
 from scripts.add_cars.add_cars import get_new_cars
 from scripts.exchange_service.exchange_service import exchange_service
@@ -30,7 +30,7 @@ async def get_cars():
 
 scheduler.add_job(
     update_rate_currency,
-    trigger=IntervalTrigger(minutes=30),
+    trigger=CronTrigger(hour=9, minute=0, second=0, timezone=UTC),
     id="update_rate_currency",
 )
 

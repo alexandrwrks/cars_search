@@ -1,6 +1,7 @@
 from typing import List, Dict, Tuple, Any
 from sqlalchemy import select, desc, insert, update, text, or_, cast, String, and_, func
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 from sqlalchemy.sql import Select
 
 from database.models import Links, Cars, CarImage
@@ -124,6 +125,7 @@ class CarsRepository:
     async def get_car_by_id(self, car_id: int) -> Cars | None:
         result = await self.session.execute(
             select(Cars)
+            .options(selectinload(Cars.images))
             .where(
                 Cars.car_id == car_id,
                 Cars.is_active.is_(True),
