@@ -24,13 +24,14 @@ class CarsService:
     async def get_cars(self, page: int, sort: SortType):
         return await self.cars_repo.get_cars(page, sort)
 
-    async def get_car_by_id(self, car_id: int) -> FullCarResponse:
+    async def get_car_by_id(self, car_id: int, user_id: int) -> FullCarResponse:
         key = f"car:{car_id}"
         cached = await self.cache.get(key, FullCarResponse)
 
-        if cached:
-            logger.info("REDIS: card_id=%s", key)
-            return cached
+        # if cached:
+        #     logger.info("REDIS: card_id=%s", key)
+        #     return cached
+
 
         car = await self.cars_repo.get_car_by_id(car_id)
         if car is None:
@@ -38,6 +39,10 @@ class CarsService:
                 status_code=404,
                 detail="Car not found"
             )
+
+        view_id = await self.cars_repo.register_view(car_id, user_id)
+        if view_id is not None:
+            await self.cars_repo.add_view(car_id)
 
         response = FullCarResponse.model_validate(car)
 

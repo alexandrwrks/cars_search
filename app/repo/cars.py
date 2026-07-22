@@ -1,10 +1,11 @@
 from typing import List, Dict, Tuple, Any
-from sqlalchemy import select, desc, insert, update, text, or_, cast, String, and_, func
+from sqlalchemy import select, desc, update, text, or_, cast, String, and_, func
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from sqlalchemy.sql import Select
 
-from database.models import Links, Cars, CarImage
+from database.models import Links, Cars, CarImage, CarViews
 from app.schemas.schemas import CarInfo
 from app.schemas.filters import ParametersSchema, SortType
 
@@ -302,3 +303,32 @@ class CarsRepository:
 
         result = await self.session.execute(query)
         return result.scalars().all()
+
+    async def register_view(self, car_id: int, user_id: int) -> int | None:
+        query = text(
+            """
+            INSERT INTO car_views (car_id, user_id)
+            VALUES (:car_id, :user_id)
+            ON CONFLICT (car_id, user_id)
+            DO NOTHING
+            RETURNING id
+            """
+        )
+
+        result = await self.session.execute(
+            query,
+            {
+                "car_id": car_id,
+                "user_id": user_id,
+            }
+        )
+        return result.scalar_one_or_none()
+
+    async def add_view(self, car_id: int):
+        await self.session.execute(
+            update(Cars)
+            .where(Cars.car_id == car_id)
+            .values(
+                views = Cars.views + 1,
+            )
+        )

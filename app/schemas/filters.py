@@ -105,7 +105,6 @@ class FullCarResponse(BaseModel):
     options: List[str]
 
     created_at: datetime
-    updated_at: datetime
 
     images: List[CarImageSchema]
 

@@ -3,7 +3,8 @@ from decimal import Decimal
 from enum import StrEnum
 from typing import List
 
-from sqlalchemy import text, TIMESTAMP, func, String, ForeignKey, ARRAY, Integer, Date, DECIMAL
+from sqlalchemy import text, TIMESTAMP, func, String, ForeignKey, ARRAY, Integer, Date, DECIMAL, DateTime, \
+    UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -74,6 +75,8 @@ class Cars(Base):
 
     created_at: Mapped[datetime] = mapped_column(TIMESTAMP, default=func.now(), index=True)
     updated_at: Mapped[datetime] = mapped_column(TIMESTAMP, default=func.now(), onupdate=func.now())
+
+    views: Mapped[int] = mapped_column(Integer, default=0, server_default="0", nullable=False)
 
     images: Mapped[List["CarImage"]] = relationship(
         back_populates="car",
@@ -210,4 +213,28 @@ class APIRefreshTokens(Base):
     user: Mapped["APIUsers"] = relationship(
         "APIUsers",
         back_populates="refresh_tokens"
+    )
+
+class CarViews(Base):
+    __tablename__ = 'car_views'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+
+    car_id: Mapped[int] = mapped_column(
+        ForeignKey("cars.car_id", ondelete="CASCADE"),
+        index=True
+    )
+
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"),
+        index=True
+    )
+
+    viewed_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+    )
+
+    __table_args__ = (
+        UniqueConstraint("car_id", "user_id"),
     )
