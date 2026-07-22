@@ -1,10 +1,10 @@
-from datetime import datetime, UTC, timedelta
+from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import select, insert, delete, update
+from sqlalchemy import delete, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.schema import AuthorizationSchema
-from database.models import APIUsers, APIRefreshTokens
+from database.models import APIRefreshTokens, APIUsers
 from utils.settings import settings
 
 

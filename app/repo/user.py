@@ -1,9 +1,9 @@
 from typing import List
 
-from sqlalchemy import select, func
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.models import Users, Cars
+from database.models import Cars, Users
 
 
 class UserRepo:

@@ -128,3 +128,6 @@ class ResponseCarsType(BaseModel):
     steering: List
     generation: List
     drive: List
+
+class PopularCarResponse(CarResponse):
+    views: int

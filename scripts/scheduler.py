@@ -1,8 +1,8 @@
 from datetime import datetime
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.cron import UTC, CronTrigger
 from apscheduler.triggers.interval import IntervalTrigger
-from apscheduler.triggers.cron import CronTrigger, UTC
 
 from scripts.add_cars.add_cars import get_new_cars
 from scripts.exchange_service.exchange_service import exchange_service

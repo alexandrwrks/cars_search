@@ -1,9 +1,9 @@
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import jwt
-from jwt import ExpiredSignatureError, InvalidTokenError
 from fastapi import HTTPException, status
+from jwt import ExpiredSignatureError, InvalidTokenError
 
 from app.schemas.response import ResponseUserSchema
 from utils.logger import logger

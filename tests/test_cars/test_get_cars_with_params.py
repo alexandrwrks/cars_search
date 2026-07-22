@@ -1,6 +1,5 @@
 import pytest
 
-
 # @pytest.mark.asyncio
 # async def test_get_cars_with_params(client):
 #

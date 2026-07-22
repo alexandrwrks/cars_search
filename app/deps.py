@@ -1,17 +1,15 @@
 from typing import AsyncGenerator
 
 from fastapi import Depends, HTTPException
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from jwt import InvalidTokenError
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.config import new_session
 from app.schemas.filters import ParametersSchema
 from app.services.auth_service import AuthService
 from app.services.cars import CarsService
 from app.services.user_service import UserService
-from database.models import Users
+from database.config import new_session
 from services.cache.cache_service import CacheService
 from services.cache.redis import redis
 

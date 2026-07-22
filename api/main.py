@@ -12,7 +12,17 @@ async def lifespan(_: FastAPI):
     yield
 
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(
+    lifespan=lifespan,
+    version="1.0.0",
+    title="Open Cars API",
+    description=
+    """
+    Open Cars API
+    You can use this api with a secret_api_key,
+    which allows you to retrieve data
+    """,
+)
 
 for router in routers:
     app.include_router(router)

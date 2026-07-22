@@ -1,13 +1,11 @@
-import re
 import json
+import re
 
 import httpx
 import pydantic
-
 from bs4 import BeautifulSoup
 
-from app.schemas.schemas import ParsedCar, CarInfo, CarImages
-
+from app.schemas.schemas import CarImages, CarInfo, ParsedCar
 
 main_link = "https://kolesa.kz/a/show/"
 

@@ -2,13 +2,12 @@ import asyncio
 import random
 
 import httpx
-
 from bs4 import BeautifulSoup
 from sqlalchemy.exc import IntegrityError
 
 from app.repo.links import LinksRepo
 from database.config import new_session
-from app.extract import extract_car_id
+from scripts.parsers.extract import extract_car_id
 
 url = "https://kolesa.kz/cars/"
 

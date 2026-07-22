@@ -1,9 +1,9 @@
-from datetime import datetime, UTC, timedelta
+from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import select, insert, delete, update
+from sqlalchemy import delete, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.models import Users, RefreshTokens
+from database.models import RefreshTokens, Users
 from utils.settings import settings
 
 
@@ -46,6 +46,9 @@ class AuthRepo:
         )
 
     async def insert_refresh_token(self, user_id: int, token: str) -> None:
+        """
+        Добавление нового refresh_token
+        """
         await self.session.execute(
             insert(RefreshTokens)
             .values(

@@ -1,10 +1,7 @@
-from typing import List
-
-from sqlalchemy import select, insert, delete
+from sqlalchemy import delete, insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 
-from database.models import Favorites, Cars
+from database.models import Cars, Favorites
 
 
 class FavoriteRepo:
@@ -51,6 +48,15 @@ class FavoriteRepo:
         return result.scalars().all()
 
     async def delete_favorite(self, user_id: int, car_id: int):
+        """
+        Удаление машины из избранного
+
+        :arg
+            user_id: int : ID пользователь
+
+        :arg
+            car_id: int : ID машины
+        """
         await self.session.execute(
             delete(Favorites)
             .where(

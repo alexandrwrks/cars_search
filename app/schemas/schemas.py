@@ -1,6 +1,7 @@
-from typing import Any
+from typing import List
 
 from pydantic import BaseModel
+
 
 class CarInfo(BaseModel):
     brand: str
@@ -29,7 +30,7 @@ class CarInfo(BaseModel):
 
     description: str | None = None
 
-    options: list[str]
+    options: List[str]
 
 
 class CarImages(BaseModel):

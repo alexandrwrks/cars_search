@@ -1,10 +1,10 @@
-from datetime import datetime, date
+from datetime import date, datetime
 from decimal import Decimal
 from enum import StrEnum
 from typing import List
 
-from sqlalchemy import text, TIMESTAMP, func, String, ForeignKey, ARRAY, Integer, Date, DECIMAL, DateTime, \
-    UniqueConstraint
+from sqlalchemy import (ARRAY, DECIMAL, TIMESTAMP, Date, DateTime, ForeignKey,
+                        Integer, String, UniqueConstraint, func, text)
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 

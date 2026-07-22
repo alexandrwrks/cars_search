@@ -1,13 +1,17 @@
-from typing import List, Dict, Tuple, Any
-from sqlalchemy import select, desc, update, text, or_, cast, String, and_, func
+from typing import Any, Dict, List, Tuple
+
+from sqlalchemy import (String, and_, cast, cte, desc, func, or_, select, text,
+                        update)
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from sqlalchemy.sql import Select
 
-from database.models import Links, Cars, CarImage, CarViews
-from app.schemas.schemas import CarInfo
 from app.schemas.filters import ParametersSchema, SortType
+from app.schemas.response import ResponseStatisticsSchema
+from app.schemas.schemas import CarInfo
+from database.models import CarImage, Cars, Links
+
 
 class CarsRepository:
     PAGE_SIZE = 20
@@ -244,7 +248,6 @@ class CarsRepository:
     async def get_fuel_types(self, params: ParametersSchema):
         return await self._get_grouped(Cars.fuel_type, params)
 
-
     async def get_drives(self, params: ParametersSchema):
         return await self._get_grouped(Cars.drive, params)
 
@@ -279,13 +282,13 @@ class CarsRepository:
 
         return result.all()
 
-    async def get_total_cars(self, params: ParametersSchema) -> int:
+    async def get_total_cars(self, params: ParametersSchema | None = None) -> int:
         query = select(func.count(Cars.id))
+        if params is not None:
+            conditions = await self._apply_parameters(params)
 
-        conditions = await self._apply_parameters(params)
-
-        if conditions:
-            query = query.where(and_(*conditions))
+            if conditions:
+                query = query.where(and_(*conditions))
 
         result = await self.session.execute(query)
 
@@ -332,3 +335,113 @@ class CarsRepository:
                 views = Cars.views + 1,
             )
         )
+
+    async def get_statics(self):
+        """Получение данных для статистики"""
+        return ResponseStatisticsSchema(
+            cars_count=await self.get_total_cars(),
+            active_cars=await self.get_active_total_cars(),
+            brands_count=await self.get_total_brands(),
+            models_count=await self.get_total_models(),
+            average_price=await self.get_average_price(),
+            average_year=await self.get_average_years(),
+            views_count=await self.get_total_views(),
+            min_price=await self.get_min_price(),
+            max_price=await self.get_max_price(),
+            latest_car_date=await self.get_latest_car_date(),
+        )
+
+    async def get_active_total_cars(self) -> int:
+        result = await self.session.execute(
+            select(func.count(Cars.id))
+            .where(Cars.is_active.is_(True))
+        )
+        return result.scalar_one()
+
+    async def get_total_brands(self) -> int:
+        result = await self.session.execute(
+            select(func.count(Cars.brand.distinct()))
+            .where(Cars.is_active.is_(True))
+        )
+        return result.scalar_one()
+
+    async def get_total_models(self) -> int:
+        result = await self.session.execute(
+            select(func.count(Cars.model.distinct()))
+            .where(Cars.is_active.is_(True))
+        )
+        return result.scalar_one()
+
+    async def get_average_price(self) -> int:
+        result = await self.session.execute(
+            select(func.round(func.avg(Cars.price), 0))
+            .where(Cars.is_active.is_(True))
+        )
+
+        return result.scalar_one()
+
+    async def get_average_years(self) -> int:
+        result = await self.session.execute(
+            select(func.round(func.avg(Cars.year), 0))
+            .where(Cars.is_active.is_(True))
+        )
+
+        return result.scalar_one()
+
+    async def get_total_views(self) -> int:
+        result = await self.session.execute(select(func.sum(Cars.views)))
+        return result.scalar_one()
+
+    async def get_min_price(self) -> int:
+        result = await self.session.execute(
+            select(func.min(Cars.price))
+            .where(Cars.is_active.is_(True))
+        )
+
+        return result.scalar_one()
+
+    async def get_max_price(self) -> int:
+        result = await self.session.execute(
+            select(func.max(Cars.price))
+            .where(Cars.is_active.is_(True))
+        )
+
+        return result.scalar_one()
+
+    async def get_latest_car_date(self):
+        result = await self.session.execute(
+            select(func.max(Cars.created_at))
+            .where(Cars.is_active.is_(True))
+        )
+        return result.scalar_one()
+
+    async def _get_statistics(self, column) -> List[Tuple[str, int, int]]:
+        result = await self.session.execute(
+            select(
+                column.label("name"),
+                func.count(Cars.id).label("count"),
+                func.round(func.avg(Cars.price), 0).label("avg_price"),
+            )
+            .where(Cars.is_active.is_(True))
+            .group_by(column)
+        )
+
+        return result.all()
+
+    async def get_brand_statistics(self):
+        return await self._get_statistics(Cars.brand)
+
+    async def get_cities_statistics(self):
+        return await self._get_statistics(Cars.city)
+
+    async def get_years_statistics(self):
+        return await self._get_statistics(Cars.year)
+
+    async def get_popular_car(self) -> List[Cars]:
+        result = await self.session.execute(
+            select(Cars)
+            .where(Cars.is_active.is_(True))
+            .order_by(Cars.views.desc())
+            .limit(10)
+        )
+        return result.scalars().all()

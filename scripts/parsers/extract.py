@@ -1,5 +1,6 @@
 import re
 
+
 def extract_car_id(href: str) -> int:
     match = re.search(r"/a/show/(\d+)", href)
 

@@ -4,14 +4,11 @@ from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.repo.cars import CarsRepository
-from app.schemas.filters import (
-    ParametersSchema,
-    SortType,
-    FiltersSchema,
-    ResponseParametersSchema,
-    ResponseCarsType,
-    FullCarResponse
-)
+from app.schemas.filters import (FiltersSchema, FullCarResponse,
+                                 ParametersSchema, PopularCarResponse,
+                                 ResponseCarsType, ResponseParametersSchema,
+                                 SortType)
+from app.schemas.response import ResponseStatisticsSchema, StatisticsSchema
 from services.cache.cache_service import CacheService
 from utils.logger import logger
 
@@ -28,10 +25,9 @@ class CarsService:
         key = f"car:{car_id}"
         cached = await self.cache.get(key, FullCarResponse)
 
-        # if cached:
-        #     logger.info("REDIS: card_id=%s", key)
-        #     return cached
-
+        if cached:
+            logger.info("REDIS: card_id=%s", key)
+            return cached
 
         car = await self.cars_repo.get_car_by_id(car_id)
         if car is None:
@@ -191,3 +187,115 @@ class CarsService:
             items=cars
         )
 
+    async def get_cars_by_statistics(self) -> ResponseStatisticsSchema:
+        """
+        Return all statistics for cars
+
+        :return
+            ResponseStatisticsSchema
+        """
+        key = f"cars:statistics"
+
+        cached = await self.cache.get(key, ResponseStatisticsSchema)
+        if cached:
+            return cached
+
+        cars = await self.cars_repo.get_statics()
+
+        response = ResponseStatisticsSchema.model_dump(cars)
+
+        await self.cache.set(
+            key,
+            response,
+            expire=900
+        )
+
+        return response
+
+    async def get_brand_statistics(self) -> List[StatisticsSchema]:
+        key = f"brands:statistics"
+        cached = await self.cache.get(key, StatisticsSchema, many=True)
+
+        if cached:
+            return cached
+
+        items = await self.cars_repo.get_brand_statistics()
+
+        response = [
+            StatisticsSchema.model_validate(item)
+            for item in items
+        ]
+
+        await self.cache.set(
+            key,
+            response,
+            expire=900
+        )
+
+        return response
+
+    async def get_cities_statistics(self) -> List[StatisticsSchema]:
+        key = f"cities:statistics"
+        cached = await self.cache.get(key, StatisticsSchema, many=True)
+
+        if cached:
+            return cached
+
+        items = await self.cars_repo.get_cities_statistics()
+
+        response = [
+            StatisticsSchema.model_validate(item)
+            for item in items
+        ]
+
+        await self.cache.set(
+            key,
+            response,
+            expire=900
+        )
+
+        return response
+
+    async def get_years_statistics(self) -> List[StatisticsSchema]:
+        key = f"years:statistics"
+        cached = await self.cache.get(key, StatisticsSchema, many=True)
+
+        if cached:
+            return cached
+
+        items = await self.cars_repo.get_years_statistics()
+
+        response = [
+            StatisticsSchema.model_validate(item)
+            for item in items
+        ]
+
+        await self.cache.set(
+            key,
+            response,
+            expire=900
+        )
+
+        return response
+
+    async def get_popular_statistics(self) -> List[PopularCarResponse]:
+        key = f"popular:statistics"
+        cached = await self.cache.get(key, PopularCarResponse, many=True)
+
+        if cached:
+            return cached
+
+        cars = await self.cars_repo.get_popular_car()
+
+        response = [
+            PopularCarResponse.model_validate(car)
+            for car in cars
+        ]
+
+        await self.cache.set(
+            key,
+            response,
+            expire=900
+        )
+
+        return response

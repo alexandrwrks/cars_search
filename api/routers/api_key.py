@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Query
 
-from api.deps import get_current_user, get_api_service
+from api.deps import get_api_service, get_current_user
 from api.service.api_key_service import APIKeyService
 from database.models import APIUsers
 

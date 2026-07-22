@@ -1,4 +1,4 @@
-from fastapi import Header, HTTPException, status, Depends
+from fastapi import Depends, Header, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -6,6 +6,7 @@ from api.repo.api_repo import APIRepo
 from api.service.api_key_service import APIKeyService
 from api.service.auth_service import AuthService
 from app.deps import get_async_session
+
 
 async def check_api_key(
     x_api_key: str = Header(alias="X-API-KEY"),

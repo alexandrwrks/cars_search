@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, Query
 
-from database.models import Users
 from app.deps import get_auth_service, get_current_user, get_refresh_token
 from app.schemas.response import ResponseUserSchema
 from app.services.auth_service import AuthService
+from database.models import Users
 
 router = APIRouter()
 
