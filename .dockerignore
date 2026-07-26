@@ -1,0 +1,10 @@
+.venv
+.env
+.git
+.gitignore
+.idea
+.todo
+__pycache__
+*.log
+locustfile.py
+.pytest_cache

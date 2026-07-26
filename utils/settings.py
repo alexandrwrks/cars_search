@@ -2,11 +2,11 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    DB_USER: str
-    DB_PASSWORD: str
+    POSTGRES_USER: str
+    POSTGRES_PASSWORD: str
     DB_HOST: str
     DB_PORT: str
-    DB_NAME: str
+    POSTGRES_DB: str
 
     SECRET_API_KEY: str
 
@@ -23,28 +23,22 @@ class Settings(BaseSettings):
 
     @property
     def DATABASE_URL(self) -> str:
-        """
-        :return:
-            URL для рабочей БД
-        """
+        """:return: URL для рабочей БД"""
         return (
             f"postgresql+asyncpg://"
-            f"{self.DB_USER}:{self.DB_PASSWORD}"
+            f"{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
             f"@{self.DB_HOST}:{self.DB_PORT}"
-            f"/{self.DB_NAME}"
+            f"/{self.POSTGRES_DB}"
         )
 
     @property
     def ALEMBIC_DATABASE_URL(self):
-        """
-        :return:
-            URL для работы с миграциями в рабочей БД
-        """
+        """:return: URL для работы с миграциями в рабочей БД"""
         return (
             f"postgresql://"
-            f"{self.DB_USER}:{self.DB_PASSWORD}"
+            f"{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
             f"@{self.DB_HOST}:{self.DB_PORT}"
-            f"/{self.DB_NAME}"
+            f"/{self.POSTGRES_DB}"
         )
 
 

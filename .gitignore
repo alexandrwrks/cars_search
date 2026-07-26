@@ -5,3 +5,4 @@ __pycache__
 *.log
 locustfile.py
 .idea
+pytest_cache

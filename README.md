@@ -47,6 +47,14 @@ Cars Search API — REST API, разработанный на FastAPI.
 - Интеграционные тесты
 - Парсинг данных
 
+## Запуск через Docker
+```shell
+docker compose up --build
+
+# Остановка
+docker compose down
+```
+
 ## Запуск
 
 ```shell
