@@ -48,7 +48,6 @@ class CarServiceAdd:
                         f"CAR_ID: {car_id}\n"
                         f"Модель: {parsed_car.car.model}\n"
                     )
-                # except
 
                 except IntegrityError as e:
                     print(e)
