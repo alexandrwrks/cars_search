@@ -10,7 +10,7 @@ from sqlalchemy.sql import Select
 from app.schemas.filters import ParametersSchema, SortType
 from app.schemas.response import ResponseStatisticsSchema
 from app.schemas.schemas import CarInfo
-from database.models import CarImage, Cars, Links
+from database.models import CarImage, Cars, Links, PriceHistory
 
 
 class CarsRepository:
@@ -444,4 +444,13 @@ class CarsRepository:
             .order_by(Cars.views.desc())
             .limit(10)
         )
+        return result.scalars().all()
+
+    async def get_the_price_change_history(self, car_id: int) -> List[PriceHistory]:
+        result = await self.session.execute(
+            select(PriceHistory)
+            .where(PriceHistory.car_id == car_id)
+            .order_by(PriceHistory.created_at)
+        )
+
         return result.scalars().all()

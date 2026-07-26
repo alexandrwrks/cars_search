@@ -1,4 +1,6 @@
 from datetime import datetime
+from decimal import Decimal
+from typing import List
 
 from pydantic import BaseModel, ConfigDict, field_serializer
 
@@ -32,3 +34,9 @@ class StatisticsSchema(BaseModel):
     avg_price: int
 
     model_config = ConfigDict(from_attributes=True)
+
+class ResponsePriceHistory(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    price: List[Decimal]
+    created_at: List[datetime]

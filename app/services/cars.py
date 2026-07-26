@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.repo.cars import CarsRepository
@@ -8,7 +8,7 @@ from app.schemas.filters import (FiltersSchema, FullCarResponse,
                                  ParametersSchema, PopularCarResponse,
                                  ResponseCarsType, ResponseParametersSchema,
                                  SortType)
-from app.schemas.response import ResponseStatisticsSchema, StatisticsSchema
+from app.schemas.response import ResponseStatisticsSchema, StatisticsSchema, ResponsePriceHistory
 from services.cache.cache_service import CacheService
 from utils.logger import logger
 
@@ -299,3 +299,45 @@ class CarsService:
         )
 
         return response
+
+    async def get_the_price_change_history(self, car_id: int) -> ResponsePriceHistory:
+        """
+        Метод для получения истории цены для автомобиля
+
+        :arg
+            car_id: int : ID машины
+
+        :return
+            Pydantic схема с историей цены
+
+        :raise
+            HTTPException Car not found
+        """
+        car_exists = await self.cars_repo.get_car_by_id(car_id)
+        if car_exists is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Car not found"
+            )
+
+        key = f"price_history:{car_id}"
+
+        cached = await self.cache.get(key, ResponsePriceHistory)
+        if cached:
+            return cached
+
+        price_history = await self.cars_repo.get_the_price_change_history(car_id)
+        response = ResponsePriceHistory(
+            price=[price.price for price in price_history],
+            created_at=[time.created_at for time in price_history],
+        )
+
+        await self.cache.set(
+            key,
+            response,
+        )
+
+
+        return response
+
+

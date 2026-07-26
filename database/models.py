@@ -84,6 +84,7 @@ class Cars(Base):
     )
 
     favorites: Mapped[List["Favorites"]] = relationship("Favorites", back_populates="car")
+    price_history: Mapped[List["PriceHistory"]] = relationship("PriceHistory", back_populates="car")
 
 
 class CarImage(Base):
@@ -237,4 +238,17 @@ class CarViews(Base):
 
     __table_args__ = (
         UniqueConstraint("car_id", "user_id"),
+    )
+
+class PriceHistory(Base):
+    __tablename__ = 'price_history'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    car_id: Mapped[int] = mapped_column(ForeignKey("cars.car_id"), nullable=False, index=True)
+    price: Mapped[Decimal] = mapped_column(DECIMAL, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
+
+    car: Mapped["Cars"] = relationship(
+        "Cars",
+        back_populates="price_history"
     )

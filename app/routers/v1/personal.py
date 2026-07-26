@@ -16,7 +16,7 @@ async def info(
     return await user_service.get_user_by_id(current_user.id)
 
 
-@router.get("/cards")
+@router.get("/cars")
 async def cards(
         current_user: Users = Depends(get_current_user),
         user_service: UserService = Depends(get_user_service)
@@ -24,14 +24,14 @@ async def cards(
     """Объявления пользователя"""
     return await user_service.cards(current_user.id)
 
-@router.get("/cards/{card_id}")
+@router.get("/cars/{car_id}")
 async def cards_by_id(
-        card_id: int,
+        car_id: int,
         current_user: Users = Depends(get_current_user),
         user_service: UserService = Depends(get_user_service)
 ):
     """Выдача всей информации о машине по car_id"""
-    return await user_service.get_cards_by_id(card_id)
+    return await user_service.get_cards_by_id(car_id)
 
 
 @router.get("/favorites")

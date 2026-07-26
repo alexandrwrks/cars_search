@@ -3,7 +3,6 @@ from fastapi import APIRouter, Depends, Query
 from app.deps import get_cars_service, get_current_user, validate_parameters
 from app.schemas.filters import (FullCarResponse, ParametersSchema,
                                  ResponseCarsType, ResponseParametersSchema)
-from app.schemas.response import ResponseStatisticsSchema
 from app.services.cars import CarsService
 from database.models import Users
 
@@ -28,41 +27,6 @@ async def get_car_info(
     """Получение количество данных о машинах"""
     return await cars_service.get_cars_with_types(params)
 
-@router.get("/statisctics", response_model=ResponseStatisticsSchema)
-async def get_statistics(
-        cars_service: CarsService = Depends(get_cars_service)
-):
-    """Общая статистика"""
-    return await cars_service.get_cars_by_statistics()
-
-@router.get("/statistics/brands")
-async def get_statistics_brand(
-        cars_service: CarsService = Depends(get_cars_service)
-):
-    """Статистика по брэндам"""
-    return await cars_service.get_brand_statistics()
-
-@router.get("/statistics/cities")
-async def get_statistics_brand(
-        cars_service: CarsService = Depends(get_cars_service)
-):
-    """Статистика по городам"""
-    return await cars_service.get_cities_statistics()
-
-@router.get("/statistics/years")
-async def get_statistics_brand(
-        cars_service: CarsService = Depends(get_cars_service)
-):
-    """Статистика по годам"""
-    return await cars_service.get_years_statistics()
-
-@router.get("/statistics/popular")
-async def get_statistics_brand(
-        cars_service: CarsService = Depends(get_cars_service)
-):
-    """Сама просматриваемая машина"""
-    return await cars_service.get_popular_statistics()
-
 
 @router.get("/{car_id}", response_model=FullCarResponse)
 async def get_car(
@@ -72,3 +36,12 @@ async def get_car(
 ):
     """Выдача всей информации о машине по car_id"""
     return await cars_service.get_car_by_id(car_id, current_user.id)
+
+
+@router.get("/{car_id}/price-history")
+async def get_car_price(
+        car_id: int,
+        current_user: Users = Depends(get_current_user),
+        cars_service: CarsService = Depends(get_cars_service)
+):
+    return await cars_service.get_the_price_change_history(car_id)
